@@ -1,0 +1,25 @@
+{
+  "name": "scrim-of-legends",
+  "version": "1.0.0",
+  "description": "League of legends Scrim Matchmaking",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NicolasVenne/Scrim-of-Legends.git"
+  },
+  "keywords": [
+    "League",
+    "of",
+    "legends",
+    "Scrim"
+  ],
+  "author": "Nicolas Venne, Paolo Scola, Joshua Renelli",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/NicolasVenne/Scrim-of-Legends/issues"
+  },
+  "homepage": "https://github.com/NicolasVenne/Scrim-of-Legends#readme"
+}
