@@ -3,6 +3,7 @@ const btoa = require('btoa');
 const fetch = require('node-fetch')
 const { admin } = require('./database/database')
 const port = process.env.PORT || 3001;
+const url = process.env.NODE_ENV === "production" ? "https://scrim-of-legends.herokuapp.com" : "http://192.168.0.7:3001"
 
 // Construct a schema, using GraphQL schema language
 const typeDefs = require("./schema/schema");
@@ -29,7 +30,7 @@ app.get('/login', (req, res) => {
       `?client_id=${discordConfig.id}`,
       '&scope=identify',
       '&response_type=code',
-      `&redirect_uri=http://localhost:3001/authorize`
+      `&redirect_uri=${url}/authorize`
     ].join(''));
 });
 
@@ -39,7 +40,7 @@ app.get('/authorize', async (req, res) => {
     const body = {
         grant_type : "authorization_code",
         code : req.query.code,
-        redirect_uri : "http://localhost:3001/authorize"
+        redirect_uri : `${url}/authorize`
     }
 
     const data = {
@@ -47,12 +48,9 @@ app.get('/authorize', async (req, res) => {
         'client_secret': discordConfig.secret,
         'grant_type': 'authorization_code',
         'code': req.query.code,
-        'redirect_uri': "http://localhost:3001/authorize",
+        'redirect_uri': `${url}/authorize`,
         'scope': 'identify'
       }
-
-      console.log(code)
-      
 
     try{
         const response = await fetch(`https://discord.com/api/v6/oauth2/token`, {
