@@ -32,6 +32,7 @@ const typeDefs = gql`
 
   type Query {
     userAccounts: [UserAccount]
+    userAccount(id: ID!): UserAccount!
   }
 `;
 
