@@ -2,7 +2,7 @@
   "name": "scrim-of-legends",
   "version": "1.0.0",
   "description": "League of legends Scrim Matchmaking",
-  "main": "index.js",
+  "main": "./server/functions/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

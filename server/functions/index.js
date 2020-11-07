@@ -97,7 +97,7 @@ const server = new ApolloServer({ typeDefs, resolvers, playground: true });
 server.applyMiddleware({ app, path: "/", cors: true });
 
 if(process.env.NODE_ENV === 'production'){
-    app.use(express.static('expert-system/build'))
+    app.use(express.static('../../client/build'))
 }
 
 app.listen(port, () => {
