@@ -1,7 +1,7 @@
 const express = require("express");
 const btoa = require('btoa');
 const fetch = require('node-fetch')
-const admin = require('./database/database')
+const { admin } = require('./database/database')
 const port = process.env.PORT || 3001;
 
 // Construct a schema, using GraphQL schema language
@@ -29,7 +29,7 @@ app.get('/login', (req, res) => {
       `?client_id=${discordConfig.id}`,
       '&scope=identify',
       '&response_type=code',
-      `&redirect_uri=http://localhost:5000/scrim-of-legends/us-central1/graphql/authorize`
+      `&redirect_uri=http://localhost:3001/authorize`
     ].join(''));
 });
 
@@ -39,7 +39,7 @@ app.get('/authorize', async (req, res) => {
     const body = {
         grant_type : "authorization_code",
         code : req.query.code,
-        redirect_uri : "http%3A%2F%2Flocalhost%3A5000%2Fscrim-of-legends%2Fus-central1%2Fgraphql%2Fauthorize"
+        redirect_uri : "http://localhost:3001/authorize"
     }
 
     const data = {
@@ -47,7 +47,7 @@ app.get('/authorize', async (req, res) => {
         'client_secret': discordConfig.secret,
         'grant_type': 'authorization_code',
         'code': req.query.code,
-        'redirect_uri': "http://localhost:5000/scrim-of-legends/us-central1/graphql/authorize",
+        'redirect_uri': "http://localhost:3001/authorize",
         'scope': 'identify'
       }
 
@@ -63,10 +63,11 @@ app.get('/authorize', async (req, res) => {
               }
         })
 
-        // console.log(response)
-
         const json = await response.json();
-        res.redirect(`http://localhost:5000/scrim-of-legends/us-central1/graphql/token?token=${json.access_token}`);
+        const customToken = await admin.auth().createCustomToken(json.access_token)
+
+        
+        res.redirect(`http://localhost:3000?token=${customToken}`);
     }
     catch(err){
         console.log(err)
@@ -76,21 +77,6 @@ app.get('/authorize', async (req, res) => {
     
     
 });
-
-app.get('/token', async (req, res) => {
-    console.log(req.query.token)
-    const user = await fetch('https://discord.com/api/v6/users/@me', {
-        headers: {
-            Authorization : `Bearer ${req.query.token}`
-        }
-    })
-    const userJson = await user.json()
-
-    const customToken = await admin.auth().createCustomToken(userJson.id)
-
-    res.send({token: customToken})
-})
-
 
 //Create graphql server
 const server = new ApolloServer({ typeDefs, resolvers, playground: true });

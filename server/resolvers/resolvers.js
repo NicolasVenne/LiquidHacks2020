@@ -1,5 +1,5 @@
 // Connect to firebase database, which we created in step 3
-const db = require("../database/database"); 
+const { db } = require("../database/database"); 
 
 // Here Firebase returns an object and GraphQL is expecting an array, so we need to extract the values.
 
