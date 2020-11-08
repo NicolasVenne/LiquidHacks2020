@@ -9,9 +9,10 @@ function PrivateRoute({ component: Component, ...rest }) {
     <Route
       {...rest}
       render={props =>{
+        console.log(user)
         if(user === null) {
           return <Loading/>
-        } else if(user && user.userAccount !== undefined) {
+        } else if(user && user.id !== undefined) {
           return  <Component {...props} />
         } else if(user && user.state === "CONNECT_LEAGUE") {
           return <Redirect to="/link"/>

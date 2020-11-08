@@ -15,7 +15,7 @@ import { AuthContext } from "./context/auth";
 import { Firebase, FirebaseContext } from "./context/firebase";
 import PrivateRoute from "./components/private-route";
 import Loading from "./components/loading";
-import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
+import {ApolloProvider, ApolloClient, InMemoryCache, gql } from '@apollo/client';
 import Home from "./pages/home";
 import  {getServerUrl} from './context/server-url';
 console.log(getServerUrl())
@@ -24,13 +24,15 @@ const client = new ApolloClient({
   cache: new InMemoryCache()
 });
 
+
+
 const theme = {
   color: {
     primary: "#DA9526",
     secondary: "#001AFF"
   }
 }
-const firebase = new Firebase();
+const firebase = new Firebase(client);
 export default function App() {
   const urlParams = new URLSearchParams(window.location.search);
   
@@ -66,7 +68,7 @@ export default function App() {
                 <Switch>
                   <Route path="/link" component={LinkLeague}/>
                   <Route path="/login" component={Landing}/>
-                  <Route exact path="/logout" component={() => {firebase.doSignOut(); return <Redirect to="/login"/> }}/>
+                  <Route path="/logout" component={() => {firebase.doSignOut(); return <Redirect to="/login"/> }}/>
                   <PrivateRoute path="/dashboard" component={Dashboard}/>
                   <PrivateRoute path="/" component={Home}/>
                 </Switch>

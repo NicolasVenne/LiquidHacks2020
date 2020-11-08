@@ -52,10 +52,10 @@ const SideBarComp = ({...rest}) => {
         <div {...rest}>
           <img src={icon} style={{width: "45px"}}/>
           <IconContainer>
-            <SideBarIcon to="/play" icon={playIcon} active={history.location.pathname === "/play"}/>
-            <SideBarIcon to="/team" icon={friendList} active={history.location.pathname === "/team"}/>
-            <SideBarIcon to="/tourney" icon={tournament} active={history.location.pathname === "/tourney"}/>
-            <SideBarIcon to="/friends" icon={messaging} active={history.location.pathname === "/friends"}/>
+            <SideBarIcon to="/play" icon={playIcon} active={history.location.pathname.substring(0,5) === "/play"}/>
+            <SideBarIcon to="/team" icon={friendList} active={history.location.pathname.substring(0,5) === "/team"}/>
+            <SideBarIcon to="/tourney" icon={tournament} active={history.location.pathname.substring(0,8) === "/tourney"}/>
+            <SideBarIcon to="/friends" icon={messaging} active={history.location.pathname.substring(0,7) === "/friends"}/>
 
           </IconContainer>
         </div>
