@@ -72,6 +72,40 @@ app.get('/authorize', async (req, res) => {
     }
 });
 
+app.post('/verifySummonerName', async (req,res) => {
+    const { key, host } = require('./resources/league-config.json')
+    const apiPath = 'lol/summoner/v4/summoners/by-name'
+    const summonerName = req.query.summonerName
+
+    const summonerResponse = await fetch(`https://${host}/${apiPath}/${summonerName}?api_key=${key}`)
+    const summonerInfo = await summonerResponse.json()
+    
+    if(summonerInfo.status)
+        res.status(summonerInfo.status.status_code).send(summonerInfo.status.message)
+    else
+        res.send(summonerInfo)
+})
+
+app.post('/verifySummonerAccount', async (req, res) => {
+    const { key, host } = require('./resources/league-config.json')
+    const apiPath = 'lol/platform/v4/third-party-code/by-summoner'
+    const { summonerId, code} = req.query
+
+    const codeResponse = await fetch(`https://${host}/${apiPath}/${summonerId}?api_key=${key}`)
+
+    if(codeResponse.status !== 200){
+        res.status(404).send({"error" : "No verification code exists for that user!"})
+    }
+    else{
+        const codeInfo = await codeResponse.json()
+
+        if(codeInfo === code)
+            res.send(codeInfo)
+        else
+            res.status(404).send({"error" : "That accounts contains a different verification code!"})
+    }
+})
+
 //Create graphql server
 const server = new ApolloServer({ typeDefs, resolvers, playground: true });
 server.applyMiddleware({ app, path: "/", cors: true });
