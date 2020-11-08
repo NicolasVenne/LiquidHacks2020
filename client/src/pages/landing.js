@@ -5,6 +5,13 @@ import Button from '../components/button';
 import Heading from '../components/heading';
 import discord from '../assets/discord.svg';
 
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  useHistory,
+  Link
+} from "react-router-dom";
 
 const LandingPage = styled.div`
   background: linear-gradient(69.81deg, #000000 0%, #000533 99.67%);
@@ -25,14 +32,14 @@ const CenterDiv = styled.div`
 
 
 const Landing = () => {
-  
+  const history = useHistory();  
 
   return (
     <LandingPage>
       <CenterDiv>
         <img src={icon} />
         <Heading.H1>SCRIM OF LEGENDS</Heading.H1>
-        <Button text="Log in with Discord" style={{marginTop: "5rem"}}><img src={discord} style={{marginLeft: "-0.5rem"}}/></Button>
+        <Button text="Log in with Discord" onClick={() => history.push("/dashboard/")} style={{marginTop: "5rem"}}><img src={discord} style={{marginLeft: "-0.5rem"}}/></Button>
       </CenterDiv>
     </LandingPage>
   )

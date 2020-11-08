@@ -21,7 +21,9 @@ const Button = styled(ButtonC)`
   background: linear-gradient(230.67deg, #000B73 0%, #0011A8 100%);
   box-shadow: 0px 2px 20px 3px rgba(0, 26, 255, 0.3);
   border-radius: 16px;
-
+  /* Adapt the colors based on primary prop */
+  background: ${props => props.isDisabled ? "linear-gradient(230.67deg, #000B73 0%, #0011A8 100%)" : "grey"};
+  background: ${props => props.isSelected ? "rgb(212 144 36 / 50%)" : "linear-gradient(230.67deg, #000B73 0%, #0011A8 100%)"};
   display: flex;
   justify-content: center;
 
