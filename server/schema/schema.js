@@ -2,7 +2,7 @@ const { gql } = require('apollo-server-express');
 
 const typeDefs = gql`
   type UserAccount {
-    id: ID!,
+    id: String!,
     discordAccount: DiscordAccount!, 
     leagueAccount: LeagueAccount!,
     isOnline: Boolean,
@@ -25,14 +25,14 @@ const typeDefs = gql`
   }
 
   type DiscordAccount {
-    id: ID!,
+    id: String!,
     username: String,
     discriminator: String,
     avatar: String
   }
 
   type MatchLobby {
-    id : ID!,
+    id : String!,
     teams : [MatchTeam],
     lobbyHost : UserAccount
   } 
@@ -49,9 +49,17 @@ const typeDefs = gql`
     owner: UserAccount
   }
 
+  type QuickPlayQueueUser {
+    user: UserAccount,
+    timeEnteredQueue: String
+  }
+
   type Query {
     userAccounts: [UserAccount]
-    userAccount(id: ID!): UserAccount!
+    userAccount(id: String!): UserAccount
+    userTeams(accountId: String!): [CustomTeam]
+    allTeams: [CustomTeam]
+    quickPlayQueueUsers: [QuickPlayQueueUser]
   }
 
   type Mutation {
@@ -62,6 +70,8 @@ const typeDefs = gql`
     removeCustomTeamMember(teamId: String!, accountId: String!) : CustomTeam
     addFriend(requestingId: String!, acceptingId: String!): UserAccount
     removeFriend(requestingId: String!, acceptingId: String!): UserAccount
+    addPlayerQuickPlayQueue(accountId: String!): QuickPlayQueueUser
+    removePlayersQuickPlayQueue(accountIds: [String]): String
   }
 `;
 
