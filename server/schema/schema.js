@@ -5,7 +5,8 @@ const typeDefs = gql`
     id: ID!,
     discordAccount: DiscordAccount!, 
     leagueAccount: LeagueAccount!,
-    isOnline: Boolean
+    isOnline: Boolean,
+    friends: [String]
   }
 
   type LeagueAccount {
@@ -42,7 +43,10 @@ const typeDefs = gql`
   }
 
   type CustomTeam {
-    players: [UserAccount]
+    id: String!,
+    members: [UserAccount],
+    name: String,
+    owner: UserAccount
   }
 
   type Query {
@@ -52,6 +56,12 @@ const typeDefs = gql`
 
   type Mutation {
     createUserAccount(summonerId: String!, discordAccessToken: String!) : UserAccount
+    createCustomTeam(accountId: String!, teamName: String!) : CustomTeam
+    deleteCustomTeam(deletingAccountId: String!, teamId: String!) : String
+    addCustomTeamMember(teamId: String!, accountId: String!) : CustomTeam
+    removeCustomTeamMember(teamId: String!, accountId: String!) : CustomTeam
+    addFriend(requestingId: String!, acceptingId: String!): UserAccount
+    removeFriend(requestingId: String!, acceptingId: String!): UserAccount
   }
 `;
 
