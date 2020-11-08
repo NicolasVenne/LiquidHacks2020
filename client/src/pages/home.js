@@ -4,6 +4,7 @@ import { useQuery, gql } from '@apollo/client';
 import {useUser} from "../context/firebase"
 import SideBar from '../components/sidebar'
 import Team from './team';
+import Play from './play';
 
 import {
   BrowserRouter as Router,
@@ -52,7 +53,7 @@ const Home = () => {
     <HomeGrid expanded={expanded}>
       <SideBar/>
       <Switch>
-        <Route path="/play" component={Team}/>
+        <Route path="/play" component={Play}/>
         <Route path="/team" component={Team}/>
         <Route path="/tourney" component={Team}/>
         <Route path="/friends" component={Team}/>
