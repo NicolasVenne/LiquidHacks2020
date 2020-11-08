@@ -28,18 +28,19 @@ const InputContainer = styled.div`
   cursor: pointer;
 
   border-color: ${props => props.copied ? "#3CDE21" : undefined};
-  
+  border-color: ${props => props.error ? "#AC0000" : undefined};
+
   :focus {
     border-color: ${props => props.theme.color.primary};
   }
 `
 
 
-const TextInputComp = ({label, labelStyle, ...rest}) => {
+const TextInputComp = ({fwdRef, label, labelStyle, ...rest}) => {
   return (
     <TextInputContainer>
       {label && <TextInputLabel style={labelStyle}>{label}</TextInputLabel>}
-      <input {...rest} />
+      <input ref={fwdRef} {...rest} />
     </TextInputContainer>
   )
 }
@@ -55,7 +56,7 @@ const CopyButton = styled.div`
 
 
 
-const TextCopyComp = ({label, ...rest}) => {
+const TextCopyComp = ({label, error, ...rest}) => {
 
   const [copied, setCopied] = useState(false)
   const inputRef = useRef(null)
@@ -76,7 +77,7 @@ const TextCopyComp = ({label, ...rest}) => {
   return (
     <TextInputContainer>
       {label && <TextInputLabel style={{fontSize: "14px", fontWeight: "400", margin: "1rem 1rem 0.5rem 0.5rem"}}>{label}</TextInputLabel>}
-      <InputContainer onClick={handleCopy} copied={copied}>
+      <InputContainer error={error} onClick={handleCopy} copied={copied}>
         <input ref={inputRef} {...rest} disabled />
         <CopyButton>{copied ? "COPIED" : "COPY"}</CopyButton>
       </InputContainer>
@@ -93,6 +94,7 @@ const TextInput = styled(TextInputComp)`
   background: transparent;
   outline: 0;
   transition: border-color 250ms ease;
+  border-color: ${props => props.error ? "#AC0000" : undefined};
   color: white;
   :focus {
     border-color: ${props => props.theme.color.primary};
@@ -110,8 +112,9 @@ const CopyInput = styled(TextCopyComp)`
   padding: 0;
   background: transparent;
   border: none;
-  width: 300px;
+  width: 100px;
   color: white;
+  transition: border 250ms ease;
   :placeholder {
     color: rgba(1,1,1,0.8);
   }
