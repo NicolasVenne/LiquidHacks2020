@@ -24,10 +24,25 @@ const typeDefs = gql`
   }
 
   type DiscordAccount {
-    id: String!,
+    id: ID!,
     username: String,
     discriminator: String,
     avatar: String
+  }
+
+  type MatchLobby {
+    id : ID!,
+    teams : [MatchTeam],
+    lobbyHost : UserAccount
+  } 
+
+  type MatchTeam {
+    players : [UserAccount],
+    side: String
+  }
+
+  type CustomTeam {
+    players: [UserAccount]
   }
 
   type Query {
