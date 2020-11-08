@@ -68,7 +68,7 @@ export default function App() {
                   <Route path="/login" component={Landing}/>
                   <Route exact path="/logout" component={() => {firebase.doSignOut(); return <Redirect to="/login"/> }}/>
                   <PrivateRoute path="/dashboard" component={Dashboard}/>
-                  <PrivateRoute exact path="/" component={Home}/>
+                  <PrivateRoute path="/" component={Home}/>
                 </Switch>
               </Layout>
             </Router>

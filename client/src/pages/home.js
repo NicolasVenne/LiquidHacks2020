@@ -1,6 +1,17 @@
-import React from 'react';
+import React, {useState} from 'react';
 import styled from 'styled-components';
 import { useQuery, gql } from '@apollo/client';
+import {useUser} from "../context/firebase"
+import SideBar from '../components/sidebar'
+import Team from './team';
+
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Link,
+  Redirect
+} from "react-router-dom";
 
 const USER_ACCOUNTS = gql`
   query GetUserInfo {
@@ -17,12 +28,36 @@ const USER_ACCOUNTS = gql`
   }
 `;
 
+
+
+const HomeGrid = styled.div`
+  display: grid;
+  grid-template-rows: auto;
+  grid-template-columns: 80px ${props => props.expanded ? "300px" : "10px"} 1fr;
+  grid-template-areas: 'sidebar menu content';
+  transition: all 250ms ease;
+  width: 100vw;
+  height: 100%;
+  background: linear-gradient(66.92deg, #060612 23.02%, #07051E 95.48%);
+  
+`
+
+
+
+
+
 const Home = () => {
-
-  const { loading, error, data } = useQuery(USER_ACCOUNTS);
-
+  const [expanded, setExpanded] = useState(true)
   return (
-    <div>{JSON.stringify(data)}</div>
+    <HomeGrid expanded={expanded}>
+      <SideBar/>
+      <Switch>
+        <Route path="/play" component={Team}/>
+        <Route path="/team" component={Team}/>
+        <Route path="/tourney" component={Team}/>
+        <Route path="/friends" component={Team}/>
+      </Switch>
+    </HomeGrid>
   )
 }
 
