@@ -14,6 +14,32 @@ const NavButtonC = ({className, children, ...rest}) => {
     border-radius: 6px;
     height: 45px;
     width: 45px;
+    cursor: pointer;
+    outline: none;
+
+
+    transition: all 250ms ease;
+
+    ::after {
+      transition: all 250ms ease;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      background: ${props => props.primary ? undefined: "DA952699"};
+      border-radius: 1rem;
+      opacity: 0;
+      
+
+    }
+
+    :hover:after {
+      opacity: 1;
+    }
+    :hover {
+      box-shadow: ${props => props.primary ? undefined : "0px 2px 20px 3px rgba(DA952699, 0.4);"};
+      background: ${props => props.primary ? "#DA952699" : undefined};
+    }
 `
 
 export default NavButton;
