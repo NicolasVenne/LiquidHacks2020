@@ -78,13 +78,18 @@ app.get('/authorize', async (req, res) => {
         const {id, username} = await discordUser.json()
         
         const customToken = await admin.auth().createCustomToken(id, {access_token})
-        const user = await admin.auth().getUser(id)
-        if(!user){
+        
+        try{
+            const user = await admin.auth().getUser(id)
+        }
+        catch(err){
             await admin.auth().createUser({
                 displayName: username,
                 uid: id
             })
         }
+        
+        
 
         res.redirect(`http://localhost:3000?token=${customToken}`);
     }
