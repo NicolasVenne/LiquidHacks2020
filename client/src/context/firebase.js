@@ -71,11 +71,19 @@ export class Firebase {
             }
           })
           .then(result => {
-            this.user = result.data.userAccount
+            if(result.data.userAccount === null) {
+              this.user = {state: "CONNECT_LEAGUE"}
+              
+            } else {
+              this.user = result.data.userAccount
+              
+            }
             for(let i = 0; i < this.listeners.length; i++) {
               this.listeners[i](this.user);
             }
+            
           }).catch((err) => {
+            console.log(err);
           });
           // getUser({variables: {id: "1"}})
         }
