@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
+import { useFirebase, useUser } from '../context/firebase'
 import styled from 'styled-components';
 import Button from '../components/button';
 import Heading from '../components/heading'
@@ -8,14 +9,24 @@ import StepCircle from '../components/step-circle';
 import Text from "../components/text";
 import rightArrow from "../assets/right-arrow.svg"
 import info from "../assets/info.svg"
+import { gql, useMutation } from '@apollo/client';
 
 import {
   BrowserRouter as Router,
   Switch,
   Route,
   useHistory,
-  Link
+  Link,
+  Redirect
 } from "react-router-dom";
+
+const CREATE_USER = gql`
+  mutation createUser($summonerId: String!, $accessToken: String!) {
+    createUserAccount(summonerId: $summonerId, discordAccessToken: $accessToken) {
+      id
+    }
+  }
+`;
 
 const Page = styled.div`
   background: linear-gradient(69.81deg, #000000 0%, #000533 99.67%);
@@ -55,9 +66,86 @@ const Container = styled.div`
 
 `
 
+
+
 const LinkLeague = () => {
   const history = useHistory();
   const [path, setPath] = useState(history.location.pathname);
+  const user = useUser();
+  const summonerRef = useRef(null);
+  const [code, setCode] = useState(0);
+  const [id, setId] = useState(null);
+  const [name, setName] = useState();
+  const [error, setError] = useState();
+  const [createUserAccount, { data }] = useMutation(CREATE_USER);
+  const firebase = useFirebase();
+
+
+  const lookUpSummoner = () => {
+    setName(summonerRef.current.value)
+    setError(null)
+    fetch("http://192.168.0.7:3001/verifySummonerName", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        summonerName: summonerRef.current.value
+      })
+    }).then((response) => {
+      if(!response.ok) {
+        throw new Error(response.statusText)
+      }
+
+      return response
+
+    }).then((data) => {
+      data.json().then((json) => {
+        setId(json.id)
+      });
+      // setCode(Math.floor((Math.random() * 10000) + 10000))
+      setCode(6969);
+      history.push("/link/verify"); 
+    }).catch((error) => {
+      setError("Could not find summoner")
+    })
+
+
+  }
+
+  const verifySummonerAccount = () => {
+    setError(null)
+    fetch("http://192.168.0.7:3001/verifySummonerAccount", {
+      method: "POST", 
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        summonerId: id,
+        code
+      })
+    }).then((res) => {
+      if(!res.ok) {
+        throw Error(res.statusText)
+      }
+      return res
+      
+    }).then((response) => {
+      response.json().then((json) => {
+        if(json === code) {
+          history.push("/link/confirm")
+        }
+      })
+    }).catch((err) => {
+      setError("Could not verify summoner")
+    })
+  }
+
+  const linkAccount = () => {
+    
+    createUserAccount({variables: { accessToken: firebase.getDiscAccessToken(), summonerId: id }})
+  }
+
   
 
   useEffect(() => {
@@ -65,11 +153,20 @@ const LinkLeague = () => {
       setPath(location.pathname)
     })
 
+    if(!name) {
+      history.push("/link")
+    }
+
     return () => {
       listen();
     }
+
+    
   },[])
   
+  if(user && user.state !== "CONNECT_LEAGUE") {
+    return (<Redirect to="/"/>)
+  }
 
   return (
     <Page>
@@ -86,17 +183,17 @@ const LinkLeague = () => {
           <Switch>
             <Route path="/link/confirm">
               <Text size={2} color={"#3CDE21"}>Verification confirmed</Text>
-              <Text size={1.25} style={{marginTop: "1.25rem"}}>Link summoner <i>Renelius</i> to your account?</Text>
+              <Text size={1.25} style={{marginTop: "1.25rem"}}>Link summoner <i>{name}</i> to your account?</Text>
               <div style={{display: "flex", alignSelf: "center"}}>
                 <Button text={"Back"} primary style={{marginTop: "4rem", marginRight: "1rem", alignSelf: "center"}} onClick={() => {history.push("/link");}}/>
 
-                <Button text={"Link"} primary style={{marginTop: "4rem", alignSelf: "center"}} onClick={() => {}}/>
+                <Button text={"Link"} primary style={{marginTop: "4rem", alignSelf: "center"}} onClick={linkAccount}/>
               </div>
 
             </Route>
             <Route path="/link/verify">
               <Text size={2}>Awesome, we found you!</Text>
-              <Text size={1.25} style={{marginTop: "1.25rem"}}>We need to verify your summoner: <i>Renellius</i></Text>
+              <Text size={1.25} style={{marginTop: "1.25rem"}}>We need to verify your summoner: <i>{name}</i></Text>
               <Text size={1.25} style={{marginTop: "1.25rem"}}>Copy - paste the verification code below into your League client. </Text>
               <div style={{display: "flex", alignItems: "center", marginTop: "1.25rem"}}>
                 <Text size={1.25} >Settings</Text>
@@ -107,14 +204,20 @@ const LinkLeague = () => {
                 <img style={{margin: "0 1rem"}} src={info}/>
               </div>
               <div>
-                <Input.Copy label={"Verification code"}  value={"1231231sdfsdfsdfsdsd"}/>
+                <Input.Copy error={error} label={"Verification code"}  value={code}/>
+                {error && <Text style={{margin: "0.5rem 0 0 0.5rem"}} size={1}>{error}</Text>}
               </div>
-              <Button text={"Verify"} primary style={{marginTop: "4rem", alignSelf: "center"}} onClick={() => {history.push("/link/confirm"); }}/>
+              <div style={{display: "flex", alignSelf: "center"}}>
+                <Button text={"Back"} primary style={{marginTop: "4rem", marginRight: "1rem", alignSelf: "center"}} onClick={() => {setError(null); history.push("/link");}}/>
+
+                <Button text={"Verify"} primary style={{marginTop: "4rem", alignSelf: "center"}} onClick={verifySummonerAccount}/>
+              </div>
 
             </Route>
             <Route path="/link">
-              <Input.Text label={"Account Name"} style={{width: "480px"}} placeholder={"Summoner name"}/>
-              <Button text={"Look Up"} primary style={{marginTop: "4rem", alignSelf: "center"}} onClick={() => {history.push("/link/verify"); }}/>
+              <Input.Text error={error} fwdRef={summonerRef} label={"Account Name"} style={{width: "480px"}} placeholder={"Summoner name"}/>
+              {error && <Text style={{margin: "0.5rem 0 0 0.5rem"}}>{error}</Text>}
+              <Button text={"Look Up"} primary style={{marginTop: "4rem", alignSelf: "center"}} onClick={lookUpSummoner}/>
             </Route>
           </Switch>
 

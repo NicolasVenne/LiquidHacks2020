@@ -74,7 +74,7 @@ app.get('/authorize', async (req, res) => {
 
 //Create graphql server
 const server = new ApolloServer({ typeDefs, resolvers, playground: true });
-server.applyMiddleware({ app, path: "/", cors: true });
+server.applyMiddleware({ app, path: "/api", cors: true });
 
 if(process.env.NODE_ENV === 'production'){
     app.use(express.static('../../client/build'))

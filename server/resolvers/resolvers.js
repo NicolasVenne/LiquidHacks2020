@@ -9,8 +9,9 @@ const resolvers = {
             const userAccounts = await db.collection('userAccounts').get()
             return userAccounts.docs.map(userAccount => userAccount.data())
         },
-        userAccount: (_,args) => {
-            return {}
+        userAccount: async (_,args) => {
+            const userAccount = await db.collection('userAccounts').doc(args.id).get();
+            return userAccount.data()
         }
     }
   };

@@ -13,6 +13,14 @@ import { ThemeProvider } from "styled-components";
 import { AuthContext } from "./context/auth";
 import { Firebase, FirebaseContext } from "./context/firebase";
 import PrivateRoute from "./components/private-route";
+import Loading from "./components/loading";
+import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
+import Home from "./pages/home";
+
+const client = new ApolloClient({
+  uri: 'http://192.168.0.7:3001/api',
+  cache: new InMemoryCache()
+});
 
 
 const theme = {
@@ -24,8 +32,7 @@ const theme = {
 const firebase = new Firebase();
 export default function App() {
   const urlParams = new URLSearchParams(window.location.search);
-  console.log(firebase.getUser() !== null)
-  console.log(firebase.isLoggedIn())
+  
   if(urlParams.get("token")) {
     firebase.doSignInWithCustomToken(urlParams.get("token")).then((e) => {
     }).catch((e) => {
@@ -35,34 +42,36 @@ export default function App() {
   return (
     <AuthContext.Provider value={false}>
       <FirebaseContext.Provider value={firebase}>
-        <ThemeProvider theme={theme}>
-          <Router>
-            <Layout>
-              {/* <nav>
-                <ul>
-                  <li>
-                    <Link to="/">Home</Link>
-                  </li>
-                  <li>
-                    <Link to="/about">About</Link>
-                  </li>
-                  <li>
-                    <Link to="/users">Users</Link>
-                  </li>
-                </ul>
-              </nav> */}
+        <ApolloProvider client={client}>
+          <ThemeProvider theme={theme}>
+            <Router>
+              <Layout>
+                {/* <nav>
+                  <ul>
+                    <li>
+                      <Link to="/">Home</Link>
+                    </li>
+                    <li>
+                      <Link to="/about">About</Link>
+                    </li>
+                    <li>
+                      <Link to="/users">Users</Link>
+                    </li>
+                  </ul>
+                </nav> */}
 
-              {/* A <Switch> looks through its children <Route>s and
-                  renders the first one that matches the current URL. */}
-              <Switch>
-                <PrivateRoute path="/link" component={LinkLeague}/>
-                <Route path="/login" component={Landing}/>
-                <PrivateRoute exact path="/logout" component={() => {firebase.doSignOut(); return <Redirect to="/login"/>}}/>
-                <PrivateRoute exact path="/" component={LinkLeague}/>
-              </Switch>
-            </Layout>
-          </Router>
-        </ThemeProvider>
+                {/* A <Switch> looks through its children <Route>s and
+                    renders the first one that matches the current URL. */}
+                <Switch>
+                  <Route path="/link" component={LinkLeague}/>
+                  <Route path="/login" component={Landing}/>
+                  <Route exact path="/logout" component={() => {firebase.doSignOut(); return <Redirect to="/login"/> }}/>
+                  <PrivateRoute exact path="/" component={Home}/>
+                </Switch>
+              </Layout>
+            </Router>
+          </ThemeProvider>
+        </ApolloProvider>
       </FirebaseContext.Provider>
     </AuthContext.Provider>
   );

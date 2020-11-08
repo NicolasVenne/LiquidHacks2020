@@ -2,6 +2,8 @@ import app from 'firebase/app';
 import 'firebase/auth';
 import { useEffect, useState } from 'react';
 import { createContext, useContext } from 'react';
+import { useLazyQuery, gql } from '@apollo/client';
+
 
 export const FirebaseContext = createContext();
 
@@ -20,23 +22,58 @@ export function useFirebase() {
   return useContext(FirebaseContext);
 }
 
+
+const USER_ACCOUNT = gql`
+  query GetUserInfo($id: ID!) {
+    userAccount(id: $id) {
+      id
+      leagueAccount {
+        name
+        rank {
+          tier
+          rank
+        }
+      }
+    }
+  }
+`;
+
+
 export function useUser() {
   const [user, setUser] = useState(null);
   const firebase = useFirebase();
+  const [getUser, {loading, error, data}] = useLazyQuery(USER_ACCOUNT)
+
+  
+  useEffect(() => {
+    if(data) {
+      setUser(data);
+    }
+    if(error ) {
+      setUser({state: "CONNECT_LEAGUE"});
+    }
+  }, [loading])
 
   useEffect(() => {
-    const listener = firebase.onAuthStateChanged((user) => {
-      if(user) {
-        setUser(user);
+    const listener = firebase.onAuthStateChanged((_user) => {
+      if(_user) {
+        // _user.getIdTokenResult().then((v) => console.log(v))
+        if(!user) {
+          firebase.loadAccessToken();
+          getUser({variables: { id: _user.uid }})
+
+          // getUser({variables: {id: "1"}})
+        }
       } else {
         setUser(false);
       }
     })
 
     return () => {
+      setUser(null);
       listener();
     }
-  })
+  }, [])
 
   return user;
 }
@@ -67,11 +104,26 @@ export class Firebase {
     
   }
 
+  loadAccessToken = () => {
+    if(!this.accessToken) {
+      this.auth.currentUser.getIdTokenResult().then((data) => {
+        this.accessToken = data.claims.access_token
+      })
+    }
+  }
+
+  getDiscAccessToken = () => {
+    return this.accessToken;
+  }
+
   getUser =  () => this.auth.currentUser
 
   isLoggedIn =  () => this.auth.currentUser !== null
 
-  doSignOut = async () => this.auth.signOut()
+  doSignOut = () => {
+    console.log("SIGN OUT")
+    return this.auth.signOut()
+  }
 
 
 }
