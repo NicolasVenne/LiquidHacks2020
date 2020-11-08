@@ -5,7 +5,6 @@ import Loading from './loading';
 
 function PrivateRoute({ component: Component, ...rest }) {
   const user = useUser();
-  console.log(user, "ROUTER")
   return(
     <Route
       {...rest}

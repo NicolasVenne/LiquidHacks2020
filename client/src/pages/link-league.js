@@ -10,6 +10,7 @@ import Text from "../components/text";
 import rightArrow from "../assets/right-arrow.svg"
 import info from "../assets/info.svg"
 import { gql, useMutation } from '@apollo/client';
+import {getServerUrl} from '../context/server-url'
 
 import {
   BrowserRouter as Router,
@@ -84,7 +85,7 @@ const LinkLeague = () => {
   const lookUpSummoner = () => {
     setName(summonerRef.current.value)
     setError(null)
-    fetch("http://192.168.0.7:3001/verifySummonerName", {
+    fetch(`${getServerUrl()}/verifySummonerName`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -115,7 +116,7 @@ const LinkLeague = () => {
 
   const verifySummonerAccount = () => {
     setError(null)
-    fetch("http://192.168.0.7:3001/verifySummonerAccount", {
+    fetch(`${getServerUrl()}/verifySummonerAccount`, {
       method: "POST", 
       headers: {
         "Content-Type": "application/json"

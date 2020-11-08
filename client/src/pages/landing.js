@@ -8,6 +8,7 @@ import Line from '../components/line';
 import { useUser } from '../context/firebase';
 import { Redirect } from 'react-router-dom';
 import Loading from '../components/loading';
+import { getServerUrl } from '../context/server-url'
 
 import {
   BrowserRouter as Router,
@@ -38,7 +39,7 @@ const CenterDiv = styled.div`
 
 const handleLogin = () => {
   // window.location.href = "https://scrim-of-legends.herokuapp.com/login"
-  window.location.href = "http://192.168.0.7:3001/login"
+  window.location.href = `${getServerUrl()}/login`
 }
 
 const Landing = () => {

@@ -17,9 +17,10 @@ import PrivateRoute from "./components/private-route";
 import Loading from "./components/loading";
 import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
 import Home from "./pages/home";
-
+import  {getServerUrl} from './context/server-url';
+console.log(getServerUrl())
 const client = new ApolloClient({
-  uri: 'http://192.168.0.7:3001/api',
+  uri: `${getServerUrl()}/api`,
   cache: new InMemoryCache()
 });
 
