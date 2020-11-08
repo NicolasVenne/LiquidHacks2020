@@ -38,7 +38,7 @@ const CenterDiv = styled.div`
 
 const handleLogin = () => {
   // window.location.href = "https://scrim-of-legends.herokuapp.com/login"
-  window.location.href = "http://localhost:3001/login"
+  window.location.href = "http://192.168.0.7:3001/login"
 }
 
 const Landing = () => {
