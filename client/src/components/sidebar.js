@@ -38,13 +38,12 @@ const MainIcon = styled.img`
 
 const SideBar = () => {
 		const [selectedButton, setSelected] = useState()
-		const buttons = [1, 2]; 
     const history = useHistory();
     return (
         <ParentDiv>
             <MainIcon src={icon} style={{padding: "0.5rem"}}/>
             <CenterDiv>
-                <NavButton onClick={() => {history.push("/dashboard/playhub"); setSelected(1);}} isSelected={1 === selectedButton} style={{"margin-bottom": "45px"}}><img src={playIcon}/></NavButton>
+                <NavButton onClick={() => {history.push("/dashboard/playhub"); setSelected(1);}} isSelected={1 === selectedButton} style={{"margin-bottom": "35px"}}><img src={playIcon}/></NavButton>
                 <NavButton onClick={() => {history.push("/dashboard/friends"); setSelected(2);}} isSelected={2 === selectedButton}><img src={friendList}/></NavButton>
             </CenterDiv>
 						<img style={{position: "absolute", bottom: "10px"}} onClick={() => history.push("/dashboard/discord")} src={discord}></img>

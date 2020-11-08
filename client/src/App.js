@@ -15,7 +15,6 @@ import { AuthContext } from "./context/auth";
 import { Firebase, FirebaseContext } from "./context/firebase";
 import PrivateRoute from "./components/private-route";
 
-
 const theme = {
   color: {
     primary: "#DA9526",
@@ -59,6 +58,7 @@ export default function App() {
                 <PrivateRoute path="/link" component={LinkLeague}/>
                 <Route path="/login" component={Landing}/>
                 <PrivateRoute exact path="/logout" component={() => {firebase.doSignOut(); return <Redirect to="/login"/>}}/>
+                <PrivateRoute path="/dashboard" component={Dashboard}/>
                 <PrivateRoute exact path="/" component={LinkLeague}/>
               </Switch>
             </Layout>

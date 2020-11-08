@@ -1,8 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import icon from '../assets/home-icon.png'
-import Button from '../components/button';
-import Heading from '../components/heading';
 import SideBar from '../components/sidebar';
 import Playhub from '../pages/playhub';
 import {
@@ -11,37 +8,34 @@ import {
   Route,
   Link
 } from "react-router-dom";
+import PrivateRoute from "../components/private-route";
 
-const SideBarDiv = styled.div`
-    background: linear-gradient(66.92deg, #060612 23.02%, #07051E 95.48%);
-    display: flex;
-    width: 85px;
-    height: 100%;
-    border-right: 1px solid #474747
+const MainPage = styled.div`
+  background: linear-gradient(69.81deg, #000000 0%, #000533 99.67%);
+  height: 100%;
+  position: absolute;
+  width: calc(100vw - 86px);
+  top: 0;
+  left: 86px;
+  overflow: hidden;
 `
 
-const MainDiv = styled.div`
-    width: 85vw;
-    height: 100%;
-    
-`
 
 const Dashboard = () => {
   
     return (
-      <Router>
+      <>
         <SideBar></SideBar>
+        <MainPage>
         {/* A <Switch> looks through its children <Route>s and
             renders the first one that matches the current URL. */}
         <Switch>
           <Route path="/dashboard/playhub">
-            {/* <Landing/> */}
-              <Playhub/>
-
+            <PrivateRoute path="/dashboard/playhub" component={Playhub}/>
           </Route>
         </Switch>
-      </Router>
-
+        </MainPage>
+      </>
     )
   }
 
