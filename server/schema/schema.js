@@ -49,6 +49,10 @@ const typeDefs = gql`
     userAccounts: [UserAccount]
     userAccount(id: ID!): UserAccount!
   }
+
+  type Mutation {
+    createUserAccount(summonerId: String!, discordAccessToken: String!) : UserAccount
+  }
 `;
 
 module.exports = typeDefs;
