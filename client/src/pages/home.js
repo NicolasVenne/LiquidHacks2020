@@ -2,7 +2,16 @@ import React, {useState} from 'react';
 import styled from 'styled-components';
 import { useQuery, gql } from '@apollo/client';
 import {useUser} from "../context/firebase"
-// import SideBar from '../components/sidebar'
+import SideBar from '../components/sidebar'
+import Team from './team';
+
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Link,
+  Redirect
+} from "react-router-dom";
 
 const USER_ACCOUNTS = gql`
   query GetUserInfo {
@@ -35,29 +44,19 @@ const HomeGrid = styled.div`
 
 
 
-const Menu = styled.div`
-  background: #09091B;
-  grid-area: menu;
-  border-right: 1px solid #474747;
-`
 
-const Content = styled.div`
-
-
-`
 
 const Home = () => {
   const [expanded, setExpanded] = useState(true)
   return (
     <HomeGrid expanded={expanded}>
-      {/* <SideBar/> */}
-
-      <Menu>
-
-      </Menu>
-      <Content>
-        
-      </Content>
+      <SideBar/>
+      <Switch>
+        <Route path="/play" component={Team}/>
+        <Route path="/team" component={Team}/>
+        <Route path="/tourney" component={Team}/>
+        <Route path="/friends" component={Team}/>
+      </Switch>
     </HomeGrid>
   )
 }
