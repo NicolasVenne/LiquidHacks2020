@@ -3,7 +3,7 @@ const btoa = require('btoa');
 const fetch = require('node-fetch')
 const { admin } = require('./database/database')
 const port = process.env.PORT || 3001;
-const url = process.env.NODE_ENV === "production" ? "https://scrim-of-legends.herokuapp.com" : "http://192.168.0.7:3001"
+const url = process.env.NODE_ENV === "production" ? "https://scrim-of-legends.herokuapp.com" : "http://localhost:3001"
 
 // Construct a schema, using GraphQL schema language
 const typeDefs = require("./schema/schema");
@@ -70,10 +70,6 @@ app.get('/authorize', async (req, res) => {
     catch(err){
         console.log(err)
     }
-    
-
-    
-    
 });
 
 //Create graphql server
