@@ -17,6 +17,7 @@ const MenuHeader = styled.h2`
 
 
 const MenuLink = styled(Link)`
+  margin: 0.5rem 0;
   border: 1px solid #0C00F7;
   box-sizing: border-box;
   border-radius: 6px;

@@ -1,8 +1,8 @@
 import app from 'firebase/app';
 import 'firebase/auth';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { createContext, useContext } from 'react';
-import { useLazyQuery, gql } from '@apollo/client';
+import {   useLazyQuery, gql } from '@apollo/client';
 
 
 export const FirebaseContext = createContext();
@@ -24,69 +24,77 @@ export function useFirebase() {
 
 
 const USER_ACCOUNT = gql`
-  query GetUserInfo($id: ID!) {
+  query GetUserInfo($id: String!) {
     userAccount(id: $id) {
       id
-      leagueAccount {
-        name
-        rank {
-          tier
-          rank
-        }
-      }
     }
   }
 `;
 
-
-export function useUser() {
-  const [user, setUser] = useState(null);
+export const useUser = () => {
   const firebase = useFirebase();
-  const [getUser, {loading, error, data}] = useLazyQuery(USER_ACCOUNT)
-
-  
-  useEffect(() => {
-    if(data) {
-      setUser(data);
-    }
-    if(error ) {
-      setUser({state: "CONNECT_LEAGUE"});
-    }
-  }, [loading])
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const listener = firebase.onAuthStateChanged((_user) => {
-      if(_user) {
-        // _user.getIdTokenResult().then((v) => console.log(v))
-        if(!user) {
-          firebase.loadAccessToken();
-          getUser({variables: { id: _user.uid }})
-
-          // getUser({variables: {id: "1"}})
-        }
-      } else {
-        setUser(false);
-      }
+    firebase.getUser((user) => {
+      setUser(user)
     })
+  })
 
-    return () => {
-      setUser(null);
-      listener();
-    }
-  }, [])
-
-  return user;
+  return user
 }
 
+
 export class Firebase {
-  constructor() {
+  constructor(client) {
     if (!app.apps.length) {
       app.initializeApp(firebaseConfig);
     }
+    this.listeners = [];
     this.auth = app.auth();
+    this.auth.onAuthStateChanged((_user) => {
+      if(_user) {
+        // _user.getIdTokenResult().then((v) => console.log(v))
+        if(!this.user) {
+          this.loadAccessToken();
+          client
+          .query({
+            query: gql`
+              query GetUserInfo($id: String!) {
+                userAccount(id: $id) {
+                  id
+                }
+              }
+            `,
+            variables: {
+              id: _user.uid
+            }
+          })
+          .then(result => {
+            this.user = result.data.userAccount
+            for(let i = 0; i < this.listeners.length; i++) {
+              this.listeners[i](this.user);
+            }
+          }).catch((err) => {
+          });
+          // getUser({variables: {id: "1"}})
+        }
+      } else {
+        for(let i = 0; i < this.listeners.length; i++) {
+          this.listeners[i](false);
+        }
+      }
+    })
   }
 
-  onAuthStateChanged = (fn) => this.auth.onAuthStateChanged(fn)
+  getUser = (cb) => {
+    if(this.user) {
+      cb(this.user);
+    } else {
+      this.listeners.push(cb);
+    }
+    
+  }
 
   doSignInWithCustomToken = async (token) => {
     return this.auth.setPersistence(app.auth.Auth.Persistence.SESSION)
@@ -116,7 +124,6 @@ export class Firebase {
     return this.accessToken;
   }
 
-  getUser =  () => this.auth.currentUser
 
   isLoggedIn =  () => this.auth.currentUser !== null
 

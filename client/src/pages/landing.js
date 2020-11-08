@@ -44,9 +44,9 @@ const handleLogin = () => {
 const Landing = () => {
   
   const user = useUser();
-
   return (
     <LandingPage>
+      {console.log(user)}
       {user === null ? <Loading/> : !user ? <>
       <CenterDiv>
         <img src={icon} />

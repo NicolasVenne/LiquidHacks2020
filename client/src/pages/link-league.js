@@ -71,7 +71,6 @@ const Container = styled.div`
 const LinkLeague = () => {
   const history = useHistory();
   const [path, setPath] = useState(history.location.pathname);
-  const user = useUser();
   const summonerRef = useRef(null);
   const [code, setCode] = useState(0);
   const [id, setId] = useState(null);
@@ -103,8 +102,8 @@ const LinkLeague = () => {
       data.json().then((json) => {
         setId(json.id)
       });
-      // setCode(Math.floor((Math.random() * 10000) + 10000))
-      setCode(6969);
+      setCode(Math.floor((Math.random() * 10000) + 10000))
+      // setCode(6969);
       history.push("/link/verify"); 
     }).catch((error) => {
       setError("Could not find summoner")
@@ -164,9 +163,9 @@ const LinkLeague = () => {
     
   },[])
   
-  if(user && user.state !== "CONNECT_LEAGUE") {
-    return (<Redirect to="/"/>)
-  }
+  // if(user && user.state !== "CONNECT_LEAGUE") {
+  //   return (<Redirect to="/"/>)
+  // }
 
   return (
     <Page>
