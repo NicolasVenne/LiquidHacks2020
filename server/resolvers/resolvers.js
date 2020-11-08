@@ -15,6 +15,21 @@ const resolvers = {
         userAccount: async (_,args) => {
             const userAccount = await db.collection('userAccounts').doc(args.id).get();
             return userAccount.data()
+        },
+        userTeams: async (_,{accountId}) => {
+            const userAccountDoc = await db.collection('userAccounts').doc(accountId).get()
+            const userAccountData = userAccountDoc.data()
+
+            const userTeams = await db.collection('customTeams').where('members', 'array-contains', userAccountData).get()
+            return userTeams.docs.map(customTeam => customTeam.data())
+        },
+        quickPlayQueueUsers: async () => {
+            const quickPlayQueueUsers = await db.collection('quickPlayQueue').get()
+            return quickPlayQueueUsers.docs.map(quickPlayUser => quickPlayUser.data())
+        },
+        allTeams: async () => {
+            const userTeams = await db.collection('customTeams').get()
+            return userTeams.docs.map(customTeam => customTeam.data())
         }
     },
     Mutation: {
@@ -133,6 +148,8 @@ const resolvers = {
         },
 
         deleteCustomTeam: async(_, {deletingAccountId, teamId}) => {
+            console.log(deletingAccountId)
+            console.log(teamId)
             const customTeamDoc = await db.collection('customTeams').doc(teamId).get()
             const customTeamData = customTeamDoc.data()
 
@@ -178,6 +195,32 @@ const resolvers = {
             else{
                 return customTeamData
             }
+        },
+
+        addPlayerQuickPlayQueue: async(_, {accountId}) => {
+            const userDoc = await db.collection('userAccounts').doc(accountId).get()
+            const userDocData = userDoc.data()
+
+            const queuedUserData = {
+                user: userDocData,
+                timeEnteredQueue: new Date()
+            }
+
+            await db.collection('quickPlayQueue').add(queuedUserData)
+
+            return queuedUserData
+        },
+
+        removePlayersQuickPlayQueue: async(_, {accountIds}) => {
+            for(let accountId of accountIds){
+                db.collection('quickPlayQueue').where("user.id", "==", accountId).get().then(snapshot => {
+                    snapshot.forEach(doc => {
+                        doc.ref.delete()
+                    })
+                })
+            }
+
+            return "Succesfully removed users."
         }
     }
   };
