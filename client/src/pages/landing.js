@@ -4,6 +4,10 @@ import icon from '../assets/home-icon.png'
 import Button from '../components/button';
 import Heading from '../components/heading';
 import discord from '../assets/discord.svg';
+import Line from '../components/line';
+import { useUser } from '../context/firebase';
+import { Redirect } from 'react-router-dom';
+import Loading from '../components/loading';
 
 
 const LandingPage = styled.div`
@@ -12,6 +16,9 @@ const LandingPage = styled.div`
   height: 100%;
   display: flex;
   justify-content: center;
+  position: relative;
+  overflow: hidden;
+
 `
 
 const CenterDiv = styled.div`
@@ -22,18 +29,34 @@ const CenterDiv = styled.div`
   justify-content: center;
 `
 
-
+const handleLogin = () => {
+  // window.location.href = "https://scrim-of-legends.herokuapp.com/login"
+  window.location.href = "http://192.168.0.7:3001/login"
+}
 
 const Landing = () => {
+  
+  const user = useUser();
+
   
 
   return (
     <LandingPage>
-      <CenterDiv>
+      {user === null ? <Loading/> : !user ? <>
+        <CenterDiv>
         <img src={icon} />
         <Heading.H1>SCRIM OF LEGENDS</Heading.H1>
-        <Button text="Log in with Discord" style={{marginTop: "5rem"}}><img src={discord} style={{marginLeft: "-0.5rem"}}/></Button>
+        <Button 
+          text="Log in with Discord" 
+          style={{marginTop: "5rem"}}
+          onClick={handleLogin}
+        ><img src={discord} style={{marginLeft: "-0.5rem"}}/></Button>
       </CenterDiv>
+      <Line color={"#DA9526"} top={"10vw"} right={"-30vw"} style={{transform: "rotate(45deg)"}}/>
+      <Line color={"#001AFF"} top={"10vw"} right={"-35vw"} style={{transform: "rotate(45deg)"}}/>
+      <Line color={"#DA9526"} bottom={"10vw"} left={"-30vw"} style={{transform: "rotate(45deg)"}}/>
+      <Line color={"#001AFF"} bottom={"10vw"} left={"-35vw"} style={{transform: "rotate(45deg)"}}/>
+      </> : <Redirect to="/"/> }
     </LandingPage>
   )
 }

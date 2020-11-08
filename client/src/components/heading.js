@@ -7,6 +7,7 @@ const H1 = styled.h1`
   font-weight: bold;
   letter-spacing: 0.05em;
   color: ${props => props.color || "white"};
+  text-align: ${props => props.center ? "center" : undefined}
 
 `
 
