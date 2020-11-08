@@ -15,11 +15,25 @@ const resolvers = {
         userAccount: async (_,args) => {
             const userAccount = await db.collection('userAccounts').doc(args.id).get();
             return userAccount.data()
+        },
+        userTeams: async (_,{accountId}) => {
+            const userAccountDoc = await db.collection('userAccounts').doc(accountId).get()
+            const userAccountData = userAccountDoc.data()
+
+            const userTeams = await db.collection('customTeams').where('members', 'array-contains', userAccountData).get()
+            return userTeams.docs.map(customTeam => customTeam.data())
+        },
+        quickPlayQueueUsers: async () => {
+            const quickPlayQueueUsers = await db.collection('quickPlayQueue').get()
+            return quickPlayQueueUsers.docs.map(quickPlayUser => quickPlayUser.data())
+        },
+        allTeams: async () => {
+            const userTeams = await db.collection('customTeams').get()
+            return userTeams.docs.map(customTeam => customTeam.data())
         }
     },
     Mutation: {
         createUserAccount: async (_, {summonerId, discordAccessToken}) => {
-            console.log("MUTATOR")
             const summonerInfo = await fetch(`https://na1.api.riotgames.com/lol/summoner/v4/summoners/${summonerId}?api_key=${leagueConfig.key}`)
             const {id, accountId, puuid, name} = await summonerInfo.json()
             const summonerRankedInfo = await fetch(`https://na1.api.riotgames.com/lol/league/v4/entries/by-summoner/${summonerId}?api_key=${leagueConfig.key}`)
@@ -62,6 +76,151 @@ const resolvers = {
             const res = await db.collection('userAccounts').doc(discordUserJson.id).set(newUserAccount)
 
             return newUserAccount
+        },
+
+        addFriend: async (_, {requestingId, acceptingId}) => {
+            const requestingAccountRef = await db.collection('userAccounts').doc(requestingId)
+            const requestingAccount = await requestingAccountRef.get()
+            const acceptingAccountRef = await db.collection('userAccounts').doc(acceptingId)
+            const acceptingAccount = await acceptingAccountRef.get()
+
+            const requestingAccountData = requestingAccount.data()
+            const acceptingAccountData = acceptingAccount.data()
+
+            const requestingFriends = requestingAccountData.friends ? requestingAccountData.friends : []
+            const acceptingFriends = acceptingAccountData.friends ? acceptingAccountData.friends : []
+
+            if(!requestingFriends.includes(acceptingAccountData.id)){
+                requestingFriends.push(acceptingAccountData.id)
+                await requestingAccountRef.update({friends: requestingFriends})
+                requestingAccountData.friends=requestingFriends
+            }
+            if(!acceptingFriends.includes(requestingAccountData.id)){
+                acceptingFriends.push(requestingAccountData.id)
+                await acceptingAccountRef.update({friends: acceptingFriends})
+            }
+
+            return requestingAccountData
+        },
+
+        removeFriend: async (_, {requestingId, acceptingId}) => {
+            const requestingAccountRef = await db.collection('userAccounts').doc(requestingId)
+            const requestingAccount = await requestingAccountRef.get()
+            const acceptingAccountRef = await db.collection('userAccounts').doc(acceptingId)
+            const acceptingAccount = await acceptingAccountRef.get()
+
+            const requestingAccountData = requestingAccount.data()
+            const acceptingAccountData = acceptingAccount.data()
+
+            const requestingFriends = requestingAccountData.friends ? requestingAccountData.friends.filter(id => id != acceptingId) : []
+            const acceptingFriends = acceptingAccountData.friends ? acceptingAccountData.friends.filter(id => id != requestingId) : []
+
+            await requestingAccountRef.update({friends: requestingFriends})
+            await acceptingAccountRef.update({friends: acceptingFriends})
+
+            requestingAccountData.friends = requestingFriends
+
+            return requestingAccountData
+        },
+
+        createCustomTeam: async(_, {accountId, teamName}) => {
+            const customTeamsRef = db.collection('customTeams')
+            const snapshot = await customTeamsRef.where('name', '==', teamName).get();
+
+            if(!snapshot.empty)
+                return snapshot.docs[0].data()
+
+            const ownerAccount = await db.collection('userAccounts').doc(accountId).get()
+            const ownerAccountData = await ownerAccount.data()
+
+            const customTeamData = {
+                name: teamName,
+                owner: ownerAccountData,
+                members: [ownerAccountData]
+            }
+            
+            const res = await db.collection('customTeams').add(customTeamData)
+            await db.collection('customTeams').doc(res.id).update({id: res.id})
+
+            customTeamData.id = res.id
+
+            return customTeamData
+        },
+
+        deleteCustomTeam: async(_, {deletingAccountId, teamId}) => {
+            console.log(deletingAccountId)
+            console.log(teamId)
+            const customTeamDoc = await db.collection('customTeams').doc(teamId).get()
+            const customTeamData = customTeamDoc.data()
+
+            if(customTeamData.owner.id == deletingAccountId){
+                await db.collection('customTeams').doc(teamId).delete()
+                return "Succesfully deleted custom team!"
+            }
+            else{
+                return "You must be the owner of a team to delete it!"
+            }
+                
+        },
+
+        addCustomTeamMember: async(_, {teamId, accountId}) => {
+            const newMemberDoc = await db.collection('userAccounts').doc(accountId).get()
+            const customTeamDoc = await db.collection('customTeams').doc(teamId).get()
+
+            const newMemberData = newMemberDoc.data()
+            const customTeamData = customTeamDoc.data()
+
+            if(!customTeamData.members.find(member => member.id == accountId)){
+                customTeamData.members.push(newMemberData)
+                await db.collection('customTeams').doc(customTeamData.id).update({members: customTeamData.members})
+                return customTeamData
+            }
+            else{
+                return customTeamData
+            }
+        },
+
+        removeCustomTeamMember: async(_, {teamId, accountId}) => {
+            const removeMemberDoc = await db.collection('userAccounts').doc(accountId).get()
+            const customTeamDoc = await db.collection('customTeams').doc(teamId).get()
+
+            const removeMemberData = removeMemberDoc.data()
+            const customTeamData = customTeamDoc.data()
+
+            if(customTeamData.members.find(member => member.id == accountId)){
+                customTeamData.members = customTeamData.members.filter(member => member.id != accountId)
+                await db.collection('customTeams').doc(customTeamData.id).update({members: customTeamData.members})
+                return customTeamData
+            }
+            else{
+                return customTeamData
+            }
+        },
+
+        addPlayerQuickPlayQueue: async(_, {accountId}) => {
+            const userDoc = await db.collection('userAccounts').doc(accountId).get()
+            const userDocData = userDoc.data()
+
+            const queuedUserData = {
+                user: userDocData,
+                timeEnteredQueue: new Date()
+            }
+
+            await db.collection('quickPlayQueue').add(queuedUserData)
+
+            return queuedUserData
+        },
+
+        removePlayersQuickPlayQueue: async(_, {accountIds}) => {
+            for(let accountId of accountIds){
+                db.collection('quickPlayQueue').where("user.id", "==", accountId).get().then(snapshot => {
+                    snapshot.forEach(doc => {
+                        doc.ref.delete()
+                    })
+                })
+            }
+
+            return "Succesfully removed users."
         }
     }
   };

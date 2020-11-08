@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import Landing from './pages/landing'
 import Layout from './components/layout'
-import Dashboard from './pages/dashboard'
 import {
   BrowserRouter as Router,
   Switch,
@@ -68,8 +67,7 @@ export default function App() {
                 <Switch>
                   <Route path="/link" component={LinkLeague}/>
                   <Route path="/login" component={Landing}/>
-                  <Route path="/logout" component={() => {firebase.doSignOut(); return <Redirect to="/login"/> }}/>
-                  <PrivateRoute path="/dashboard" component={Dashboard}/>
+                  <Route exact path="/logout" component={() => {firebase.doSignOut(); return <Redirect to="/login"/> }}/>
                   <PrivateRoute path="/" component={Home}/>
                 </Switch>
               </Layout>
