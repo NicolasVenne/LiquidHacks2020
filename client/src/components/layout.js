@@ -11,6 +11,7 @@ const LayoutC = ({className, children}) => {
 
 const Layout = styled(LayoutC)`
   height: 100%;
+  
 `
 
 export default Layout;
