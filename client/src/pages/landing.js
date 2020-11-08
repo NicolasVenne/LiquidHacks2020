@@ -9,6 +9,13 @@ import { useUser } from '../context/firebase';
 import { Redirect } from 'react-router-dom';
 import Loading from '../components/loading';
 
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  useHistory,
+  Link
+} from "react-router-dom";
 
 const LandingPage = styled.div`
   background: linear-gradient(69.81deg, #000000 0%, #000533 99.67%);

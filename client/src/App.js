@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import Landing from './pages/landing'
 import Layout from './components/layout'
+import Dashboard from './pages/dashboard'
 import {
   BrowserRouter as Router,
   Switch,
